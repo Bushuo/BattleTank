@@ -2,6 +2,8 @@
 
 #include "AimingComponent.h"
 #include "GameFramework/Actor.h"
+#include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values for this component's properties
@@ -36,8 +38,30 @@ void UAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// ...
 }
 
-void UAimingComponent::AimAt(FVector HitLocation)
+void UAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 {
-	auto OurTankName = GetOwner()->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("%s aiming at %s from %s"), *OurTankName, *HitLocation.ToString(), *Barrel->GetSocketLocation(TEXT("BarrelMuzzle")).ToString());
+	if (!Barrel) { return; }
+	FVector OutLaunchVelocity;
+	FVector StartLocation = Barrel->GetSocketLocation(TEXT("BarrelMuzzle"));
+	TArray<AActor*> ActorsToIgnore;
+	// Calculate the out LauchVelocity
+	if (UGameplayStatics::SuggestProjectileVelocity(
+		this, // Context
+		OutLaunchVelocity, 
+		StartLocation, 
+		HitLocation, 
+		LaunchSpeed
+	)) {
+		auto AimDirection = OutLaunchVelocity.GetSafeNormal();
+		UE_LOG(LogTemp, Warning, TEXT("Firing at %s"), *AimDirection.ToString());
+		MoveBarrelTowards(AimDirection);
+	}
+}
+
+void UAimingComponent::MoveBarrelTowards(const FVector AimDirection)
+{
+	// at a maximum turn speed move the barrel each frame towards the desired barrel direction
+	// when it can be reached within one frame just set
+	// when not lerp the rotation
+	// consider the minimum possible turning angle. there is one direction to come from in each rotation axis. -360 +360
 }
