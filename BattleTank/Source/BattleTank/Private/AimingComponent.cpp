@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "TankBarrel.h"
 
 
 // Sets default values for this component's properties
@@ -16,26 +17,9 @@ UAimingComponent::UAimingComponent()
 	// ...
 }
 
-void UAimingComponent::SetBarrelReference(UStaticMeshComponent * BarrelToSet)
+void UAimingComponent::SetBarrelReference(UTankBarrel * BarrelToSet)
 {
 	Barrel = BarrelToSet;
-}
-
-// Called when the game starts
-void UAimingComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-// Called every frame
-void UAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
 void UAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
@@ -60,8 +44,9 @@ void UAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 
 void UAimingComponent::MoveBarrelTowards(const FVector AimDirection)
 {
-	// at a maximum turn speed move the barrel each frame towards the desired barrel direction
-	// when it can be reached within one frame just set
-	// when not lerp the rotation
-	// consider the minimum possible turning angle. there is one direction to come from in each rotation axis. -360 +360
+	// work out difference between current barrel rotation and AimDirection
+	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
+	auto AimAsRotator = AimDirection.Rotation();
+	auto DeltaRotator = AimAsRotator - BarrelRotator;
+	Barrel->Elevate(5); //TODO remove magic number
 }
