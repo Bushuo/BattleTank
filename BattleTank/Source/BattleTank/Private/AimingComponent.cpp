@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "TankBarrel.h"
+#include "Engine/World.h"
 
 
 // Sets default values for this component's properties
@@ -12,7 +13,7 @@ UAimingComponent::UAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = true; // TODO Should this really tick?
 
 	// ...
 }
@@ -29,16 +30,25 @@ void UAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 	FVector StartLocation = Barrel->GetSocketLocation(TEXT("BarrelMuzzle"));
 	TArray<AActor*> ActorsToIgnore;
 	// Calculate the out LauchVelocity
-	if (UGameplayStatics::SuggestProjectileVelocity(
+	bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
 		this, // Context
-		OutLaunchVelocity, 
-		StartLocation, 
-		HitLocation, 
-		LaunchSpeed
-	)) {
+		OutLaunchVelocity,
+		StartLocation,
+		HitLocation,
+		LaunchSpeed,
+		false,
+		0.f,
+		0.f,
+		ESuggestProjVelocityTraceOption::OnlyTraceWhileAscending
+	);
+
+	if (bHaveAimSolution)
+	{
 		auto AimDirection = OutLaunchVelocity.GetSafeNormal();
-		UE_LOG(LogTemp, Warning, TEXT("Firing at %s"), *AimDirection.ToString());
 		MoveBarrelTowards(AimDirection);
+	}
+	else
+	{
 	}
 }
 
@@ -48,5 +58,6 @@ void UAimingComponent::MoveBarrelTowards(const FVector AimDirection)
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
 	auto AimAsRotator = AimDirection.Rotation();
 	auto DeltaRotator = AimAsRotator - BarrelRotator;
-	Barrel->Elevate(5); //TODO remove magic number
+
+	Barrel->Elevate(DeltaRotator.Pitch);
 }

@@ -51,9 +51,9 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector& HitLocation) const
 	if (GetLookDirection(ScreenLocation, LookDirection))
 	{
 		/// line trace along that LookDirection
-		return GetLookVectorHitLocation(LookDirection, HitLocation);
+		GetLookVectorHitLocation(LookDirection, HitLocation);
 	}
-	else { return false; }
+	return true;
 }
 
 bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVector & HitLocation) const
@@ -67,7 +67,7 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVec
 		HitLocation = HitResult.Location;
 		return true;
 	}
-	HitLocation = FVector::ZeroVector;
+	HitLocation = FVector(0);
 	return false;
 }
 
