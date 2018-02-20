@@ -3,11 +3,14 @@
 #include "Tank.h"
 #include "Engine/World.h"
 #include "AimingComponent.h"
+#include "TankBarrel.h"
+#include "Projectile.h"
 
 
 void ATank::SetBarrelReference(UTankBarrel * BarrelToSet)
 {
 	TankAimingComponent->SetBarrelReference(BarrelToSet);
+	Barrel = BarrelToSet;
 }
 
 void ATank::SetTurretReference(UTankTurret* TurretToSet)
@@ -17,8 +20,11 @@ void ATank::SetTurretReference(UTankTurret* TurretToSet)
 
 void ATank::Fire()
 {
-	auto Time = GetWorld()->GetTimeSeconds();
-	UE_LOG(LogTemp, Warning, TEXT("%f: FIRE"),Time);
+	if (!Barrel) { return; }
+	// spawn projectile at muzzle
+	auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(TEXT("BarrelMuzzle")), Barrel->GetSocketRotation(TEXT("BarrelMuzzle")));
+	
+	Projectile->LaunchProjectile(LaunchSpeed);
 }
 
 // Sets default values
