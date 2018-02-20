@@ -18,10 +18,7 @@ public:
 	UAimingComponent();
 
 	void SetBarrelReference(UTankBarrel* BarrelToSet);
-
 	void SetTurretReference(UTankTurret * TurretToSet);
-
-	// TODO set turret reference
 
 	void AimAt(FVector HitLocation, float LaunchSpeed);
 

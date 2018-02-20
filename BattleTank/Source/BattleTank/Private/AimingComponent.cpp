@@ -14,7 +14,7 @@ UAimingComponent::UAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true; // TODO Should this really tick?
+	PrimaryComponentTick.bCanEverTick = false; // TODO Should this really tick?
 
 	// ...
 }
@@ -54,9 +54,6 @@ void UAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 		MoveBarrelTowards(AimDirection);
 		MoveTurretTowards(AimDirection);
 	}
-	else
-	{
-	}
 }
 
 void UAimingComponent::MoveBarrelTowards(const FVector AimDirection)
@@ -75,5 +72,6 @@ void UAimingComponent::MoveTurretTowards(const FVector AimDirection)
 	auto AimAsRotator = AimDirection.Rotation();
 	auto DeltaRotator = AimAsRotator - TurretRotator;
 
-	Turret->Turn(DeltaRotator.Yaw); // TODO Remove magic number
+	// TODO make it move the small angle
+	Turret->Turn(DeltaRotator.Yaw);
 }
