@@ -5,15 +5,21 @@
 
 void UTankMovementComponent::IntendMoveForward(float Throw)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Intend move forwar throw: %f"), Throw);
+	if (!LeftTrack || !RightTrack) { return; }
 	LeftTrack->SetThrottle(Throw);
 	RightTrack->SetThrottle(Throw);
+	// TODO prevent double speed with double controlls
+}
+
+void UTankMovementComponent::IntendTurnClockwise(float Throw)
+{
+	if (!LeftTrack || !RightTrack) { return; }
+	LeftTrack->SetThrottle(Throw);
+	RightTrack->SetThrottle(-Throw);
 }
 
 void UTankMovementComponent::Initialise(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet)
 {
-	if (!LeftTrackToSet || !RightTrackToSet) { return; }
 	LeftTrack = LeftTrackToSet;
 	RightTrack = RightTrackToSet;
-	// TODO prevent double speed with double controlls
 }
