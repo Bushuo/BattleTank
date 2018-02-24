@@ -26,6 +26,9 @@ void UTankMovementComponent::Initialise(UTankTrack* LeftTrackToSet, UTankTrack* 
 
 void UTankMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool bWithForce)
 {
-	auto TankName = GetOwner()->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("%s requesting to vector: %s"), *TankName, *MoveVelocity.ToString());
+	auto TankForward = GetOwner()->GetActorForwardVector().GetSafeNormal();
+	auto AIForwardIntention = MoveVelocity.GetSafeNormal();
+	
+	float Parrallel = FVector::DotProduct(TankForward, AIForwardIntention);
+	//UE_LOG(LogTemp, Warning, TEXT("%s requesting to vector: %s"), *TankName, *MoveVelocity.GetSafeNormal().ToString());
 }
