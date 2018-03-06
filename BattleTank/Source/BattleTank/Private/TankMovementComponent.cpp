@@ -8,7 +8,8 @@ void UTankMovementComponent::IntendMoveForward(float Throw)
 	if (!LeftTrack || !RightTrack) { return; }
 	LeftTrack->SetThrottle(Throw);
 	RightTrack->SetThrottle(Throw);
-	// TODO prevent double speed with double controlls
+	// prevent double speed with double controls ->
+	// unbind the direct throttle movement input
 }
 
 void UTankMovementComponent::IntendTurnClockwise(float Throw)
@@ -29,6 +30,8 @@ void UTankMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool
 	auto TankForward = GetOwner()->GetActorForwardVector().GetSafeNormal();
 	auto AIForwardIntention = MoveVelocity.GetSafeNormal();
 	
-	float Parrallel = FVector::DotProduct(TankForward, AIForwardIntention);
-	//UE_LOG(LogTemp, Warning, TEXT("%s requesting to vector: %s"), *TankName, *MoveVelocity.GetSafeNormal().ToString());
+	float ForwardThrow = FVector::DotProduct(TankForward, AIForwardIntention);
+	IntendMoveForward(ForwardThrow);
+	float ClockwiseThrow = FVector::CrossProduct(TankForward, AIForwardIntention).Z;
+	IntendTurnClockwise(ClockwiseThrow);
 }
