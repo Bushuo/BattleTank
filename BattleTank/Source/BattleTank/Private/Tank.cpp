@@ -22,24 +22,23 @@ void ATank::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("DONKEY: C++ Begin Play"));
-	if (!ProjectileBlueprint)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Projectile Blueprint not set"));
-		return;
-	}
+	if (!ensure(ProjectileBlueprint)) { return; }
 }
 
 void ATank::AimAt(FVector HitLocation) 
 {
-	if (!TankAimingComponent) { return; }
+	if (!ensure(TankAimingComponent)) { return; }
 	TankAimingComponent->AimAt(HitLocation, LaunchSpeed);
 }
 
 void ATank::Fire()
 {
+	if (!ensure(Barrel) || !ensure(ProjectileBlueprint))
+	{
+		return;
+	}
 	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
-
-	if (Barrel && ProjectileBlueprint && isReloaded) {
+	if (isReloaded) {
 		// spawn projectile at muzzle
 		auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(TEXT("BarrelMuzzle")), Barrel->GetSocketRotation(TEXT("BarrelMuzzle")));
 
