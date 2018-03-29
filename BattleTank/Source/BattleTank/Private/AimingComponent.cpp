@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "TankBarrel.h"
 #include "TankTurret.h"
+#include "Projectile.h"
 #include "Engine/World.h"
 
 
@@ -21,6 +22,22 @@ void UAimingComponent::Initialise(UTankBarrel* BarrelToSet, UTankTurret * Turret
 {
 	Barrel = BarrelToSet;
 	Turret = TurretToSet;
+}
+
+void UAimingComponent::Fire()
+{
+	if (!ensure(Barrel) || !ensure(ProjectileBlueprint))
+	{
+		return;
+	}
+	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+	if (isReloaded) {
+		// spawn projectile at muzzle
+		auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(TEXT("BarrelMuzzle")), Barrel->GetSocketRotation(TEXT("BarrelMuzzle")));
+
+		Projectile->LaunchProjectile(LaunchSpeed);
+		LastFireTime = FPlatformTime::Seconds();
+	}
 }
 
 void UAimingComponent::AimAt(FVector HitLocation)
