@@ -15,8 +15,30 @@ UAimingComponent::UAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false; // TODO Should this really tick?
+	PrimaryComponentTick.bCanEverTick = true;
 }
+
+void UAimingComponent::BeginPlay()
+{
+	// so that first fire is after initial reload
+	LastFireTime = FPlatformTime::Seconds();
+}
+
+void UAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+{
+	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeInSeconds)
+	{
+		FiringStatus = EFiringStatus::Reloading;
+	}
+	else if(IsBarrelMoving())
+	{
+		FiringStatus = EFiringStatus::Aiming;
+	}
+	else {
+		FiringStatus = EFiringStatus::Locked;
+	}
+}
+
 
 void UAimingComponent::Initialise(UTankBarrel* BarrelToSet, UTankTurret * TurretToSet)
 {
@@ -26,17 +48,20 @@ void UAimingComponent::Initialise(UTankBarrel* BarrelToSet, UTankTurret * Turret
 
 void UAimingComponent::Fire()
 {
-	if (!ensure(Barrel) || !ensure(ProjectileBlueprint))
+	if (FiringStatus != EFiringStatus::Reloading)
 	{
-		return;
-	}
-	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
-	if (isReloaded) {
-		// spawn projectile at muzzle
-		auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(TEXT("BarrelMuzzle")), Barrel->GetSocketRotation(TEXT("BarrelMuzzle")));
 
-		Projectile->LaunchProjectile(LaunchSpeed);
-		LastFireTime = FPlatformTime::Seconds();
+		bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+		if (isReloaded) {
+			if (!ensure(Barrel)) { return; }
+			if (!ensure(ProjectileBlueprint)) { return; }
+
+			// spawn projectile at muzzle
+			auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(TEXT("BarrelMuzzle")), Barrel->GetSocketRotation(TEXT("BarrelMuzzle")));
+
+			Projectile->LaunchProjectile(LaunchSpeed);
+			LastFireTime = FPlatformTime::Seconds();
+		}
 	}
 }
 
@@ -61,7 +86,7 @@ void UAimingComponent::AimAt(FVector HitLocation)
 
 	if (bHaveAimSolution)
 	{
-		auto AimDirection = OutLaunchVelocity.GetSafeNormal();
+		AimDirection = OutLaunchVelocity.GetSafeNormal();
 		MoveBarrelTowards(AimDirection);
 		MoveTurretTowards(AimDirection);
 	}
@@ -89,4 +114,10 @@ void UAimingComponent::MoveTurretTowards(const FVector AimDirection)
 
 	// TODO make it move the small angle
 	Turret->Turn(DeltaRotator.Yaw);
+}
+
+bool UAimingComponent::IsBarrelMoving()
+{
+	if (!ensure(Barrel)) { return false; }
+	return !(Barrel->GetForwardVector().Equals(AimDirection, 0.01f));
 }

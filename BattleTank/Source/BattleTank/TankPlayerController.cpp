@@ -20,7 +20,7 @@ void ATankPlayerController::Tick(float DeltaTime)
 
 void ATankPlayerController::AimTowardsCrosshair()
 {
-	if(ensure(!GetPawn())) { UE_LOG(LogTemp, Warning, TEXT("im failing")); return; }
+	if(!ensure(GetPawn())) { UE_LOG(LogTemp, Warning, TEXT("im failing")); return; }
 	auto AimingComponent = GetPawn()->FindComponentByClass<UAimingComponent>();
 	if (!ensure(AimingComponent)) { return; }
 
