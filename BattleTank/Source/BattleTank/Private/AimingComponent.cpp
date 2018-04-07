@@ -88,13 +88,13 @@ void UAimingComponent::AimAt(FVector HitLocation)
 	{
 		AimDirection = OutLaunchVelocity.GetSafeNormal();
 		MoveBarrelTowards(AimDirection);
-		MoveTurretTowards(AimDirection);
 	}
 }
 
 void UAimingComponent::MoveBarrelTowards(const FVector AimDirection)
 {
 	if (!ensure(Barrel)){ return; }
+	if (!ensure(Turret)) { return; }
 
 	// work out difference between current barrel rotation and AimDirection
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
@@ -102,18 +102,12 @@ void UAimingComponent::MoveBarrelTowards(const FVector AimDirection)
 	auto DeltaRotator = AimAsRotator - BarrelRotator;
 
 	Barrel->Elevate(DeltaRotator.Pitch);
-}
-
-void UAimingComponent::MoveTurretTowards(const FVector AimDirection)
-{
-	if (!ensure(Turret)) { return; }
-
-	auto TurretRotator = Turret->GetForwardVector().Rotation();
-	auto AimAsRotator = AimDirection.Rotation();
-	auto DeltaRotator = AimAsRotator - TurretRotator;
-
-	// TODO make it move the small angle
-	Turret->Turn(DeltaRotator.Yaw);
+	if (FMath::Abs(DeltaRotator.Yaw) < 180) {
+		Turret->Turn(DeltaRotator.Yaw);
+	}
+	else {
+		Turret->Turn(-DeltaRotator.Yaw);
+	}
 }
 
 bool UAimingComponent::IsBarrelMoving()
