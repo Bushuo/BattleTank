@@ -26,7 +26,11 @@ void UAimingComponent::BeginPlay()
 
 void UAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
-	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeInSeconds)
+	if (CurrentAmmo <= 0)
+	{
+		FiringStatus = EFiringStatus::OutOfAmmo;
+	}
+	else if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeInSeconds)
 	{
 		FiringStatus = EFiringStatus::Reloading;
 	}
@@ -50,11 +54,15 @@ EFiringStatus UAimingComponent::GetFiringStatus() const
 	return FiringStatus;
 }
 
+int32 UAimingComponent::GetCurrentAmmo() const
+{
+	return CurrentAmmo;
+}
+
 void UAimingComponent::Fire()
 {
-	if (FiringStatus != EFiringStatus::Reloading)
+	if (FiringStatus == EFiringStatus::Aiming || FiringStatus == EFiringStatus::Locked)
 	{
-
 		bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
 		if (isReloaded) {
 			if (!ensure(Barrel)) { return; }
@@ -65,6 +73,7 @@ void UAimingComponent::Fire()
 
 			Projectile->LaunchProjectile(LaunchSpeed);
 			LastFireTime = FPlatformTime::Seconds();
+			CurrentAmmo--;
 		}
 	}
 }
