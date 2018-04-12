@@ -39,11 +39,15 @@ void UAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 	}
 }
 
-
 void UAimingComponent::Initialise(UTankBarrel* BarrelToSet, UTankTurret * TurretToSet)
 {
 	Barrel = BarrelToSet;
 	Turret = TurretToSet;
+}
+
+EFiringStatus UAimingComponent::GetFiringStatus() const
+{
+	return FiringStatus;
 }
 
 void UAimingComponent::Fire()
@@ -64,6 +68,8 @@ void UAimingComponent::Fire()
 		}
 	}
 }
+
+
 
 void UAimingComponent::AimAt(FVector HitLocation)
 {
