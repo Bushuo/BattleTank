@@ -62,9 +62,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float ReloadTimeInSeconds = 3.f;
 
-	double LastFireTime = 0;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	int32 CurrentAmmo = 5;
+
+	double LastFireTime = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<AProjectile> ProjectileBlueprint;
