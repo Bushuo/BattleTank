@@ -31,6 +31,11 @@ void ATankPlayerController::SetPawn(APawn* InPawn)
 	}
 }
 
+void ATankPlayerController::OnPawnDeath()
+{
+	StartSpectatingOnly();
+}
+
 void ATankPlayerController::AimTowardsCrosshair()
 {
 	if(!(GetPawn())) { return; }
@@ -77,17 +82,9 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVec
 	return false;
 }
 
-void ATankPlayerController::OnPawnDeath()
-{
-	UE_LOG(LogTemp, Warning, TEXT("player died"));
-}
-
 bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
 {
 	FVector WorldLocation; // discarded
 	return DeprojectScreenPositionToWorld(ScreenLocation.X, ScreenLocation.Y, WorldLocation, LookDirection);
 }
-
-
-
 

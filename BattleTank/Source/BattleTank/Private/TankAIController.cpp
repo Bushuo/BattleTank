@@ -25,14 +25,15 @@ void ATankAIController::SetPawn(APawn* InPawn)
 
 void ATankAIController::OnPawnDeath()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AI pawn died"));
+	if (!GetPawn()) { return; }
+	GetPawn()->DetachFromControllerPendingDestroy();
 }
 
 void ATankAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	auto PlayerTank = GetWorld()->GetFirstPlayerController()->GetPawn();
-	if (!ensure(PlayerTank && GetPawn())) { return; }
+	if (!(PlayerTank && GetPawn())) { return; }
 	// Move towards the player
 	MoveToActor(PlayerTank, AcceptanceRadius);
 	// Aim towards player
